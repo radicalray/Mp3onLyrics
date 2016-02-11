@@ -2,9 +2,13 @@
 
 from __future__ import print_function
 import os
+from os import getcwd
+from os.path import join
+
 import re
 
 from bs4 import BeautifulSoup
+from urllib2 import urlparse
 
 # Version compatiblity
 import sys
@@ -16,9 +20,13 @@ else:
     from urllib2 import urlopen
     from urllib import quote_plus as qp
 
+from os.path import dirname
+# calculated paths for django and the site
+# used as starting points for various other paths
+BASE_DIR = dirname(os.path.realpath(__file__))
 
 def extract_videos(html):
-    
+
     soup = BeautifulSoup(html, 'html.parser')
     pattern = re.compile(r'/watch\?v=')
     found = soup.find_all('a', 'yt-uix-tile-link', href=pattern)
@@ -31,19 +39,52 @@ def list_movies(movies):
 
 
 def search_videos(query):
-    
+
     response = urlopen('https://www.youtube.com/results?search_query=' + query)
     return extract_videos(response.read())
 
 
+def is_url(string):
+    link = urlparse.urlparse(string)
+    return bool(link.scheme)
+
+def download_from_url(url):
+    print('Downloading', url)
+
+    command_tokens = [
+        'youtube-dl',
+        '--output \'%(title)s.%(ext)s\'',
+        # '--output \'' + join(getcwd(), 'download', '%(title)s.%(ext)s') + '\'',
+        '--extract-audio',
+        '--audio-format mp3',
+        # '--audio-quality 0',
+        '--format bestaudio',
+        url]
+
+    command = ' '.join(command_tokens)
+
+    print('Downloading...')
+    os.system(command)
+    os.system('python ' + join(BASE_DIR, 'auto_lyrics_tagger.py'))
+
 def main():
-   
+
     search = ''
     while search.strip() == '':
         search = raw_input('Enter songname/lyrics/artist or other\n> ')
-    search = qp(search)
 
     print('Searching...')
+    print (search)
+
+    if is_url(search):
+        print('You gave me an url')
+        video_url = search
+        download_from_url(video_url)
+        print ('Finished downloading link!')
+        return
+        sys.exit()
+
+    search = qp(search)
     available = search_videos(search)
 
     if not available:
@@ -57,25 +98,16 @@ def main():
 
     choice = ''
     while choice.strip() == '':
-        choice = raw_input('Pick one: ')
+        choice = raw_input('Pick one to download: ')
 
     title, video_link = available[int(choice)]
 
-    prompt = raw_input("Download (y/n)? ")
-    if prompt != "y":
-        sys.exit()
+    # prompt = raw_input("Download (y/n)? ")
+    # if prompt != "y":
+    #     sys.exit()
 
-    command_tokens = [
-        'youtube-dl',
-        '--extract-audio',
-        '--audio-format mp3',
-        '--audio-quality 0',
-        'http://www.youtube.com/' + video_link]
-
-    command = ' '.join(command_tokens)
-
-    print('Downloading...')
-    os.system(command)
+    video_url = 'http://www.youtube.com' + video_link
+    download_from_url(video_url)
 
 if __name__ == '__main__':
     main()

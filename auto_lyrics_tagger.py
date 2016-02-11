@@ -26,7 +26,6 @@ def parseout_metrolyrics(lyricslink):
   test1= (test1.replace('<p class="verse">','\n'))
   test1= (test1.replace('<br/>',' '))
   test1 = test1.replace('</p>',' ')
-  # print (test1)
 
   return test1
 
@@ -108,31 +107,6 @@ for name in song_name:
 
     links = search_google(query1) + search_google(query2) + search_google(query3)
 
-    # url = 'http://www.google.com/search?q='+name
-
-    # req = urllib2.Request(url, headers={'User-Agent' : "foobar"})
-
-    # response = urllib2.urlopen(req)
-    # str = response.read()
-    # str = unicode(str, errors='replace')
-
-    # #print(str.encode('utf8'))
-
-    # result = str.encode('utf8')
-
-    # link_start=result.find('www.alyrics.com')
-    # link_end=result.find('html',link_start+1)
-    # #print(result[link_start:link_start+57])
-
-
-    # link = result[link_start:link_end+4]
-
-    # print 'link', link, link_start, link_end
-    #
-    #      if re.findall('www.metrolyrics.com', link):
-    #      re.findall('www.alyrics.com', link):
-    # print 'links', links
-
     lyricsList = []
 
 
@@ -174,16 +148,6 @@ for name in song_name:
         notChosen = False
 
 
-
-        # lyrics = parseout_arc90(link)
-        # print lyrics
-        # prompt = raw_input("Choose lyrics (y/n)? ")
-        # if prompt == "n"  or prompt == 'N':
-        #     continue
-        # break
-        # break
-
-    # print 'picked link', lyricslink
     print 'picked lyrics', lyrics
 
     tag = audiofile.tag

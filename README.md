@@ -1,5 +1,5 @@
-# Mp3onLyrics
-Download mp3 without knowing the name of the son - just by typing the lyrics or the youtube url
+# Mp3withLyricsAutoTagging
+Download mp3 without knowing the name of the song - just by typing the lyrics or the youtube url
 
 This program will also automatically search for the **Lyrics** of the song online then download the lyrics for the song and add then embed *Lyrics* to the *mp3* file via *eyed3* Tagger. All songs lyrics fetched in one go!
 

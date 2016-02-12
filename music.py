@@ -71,7 +71,7 @@ def main():
 
     search = ''
     while search.strip() == '':
-        search = raw_input('Enter songname/lyrics/artist or other\n> ')
+        search = raw_input('Enter songname/lyrics/artist/url or other\n> ')
 
     print('Searching...')
     print (search)

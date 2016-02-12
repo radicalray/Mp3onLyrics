@@ -14,7 +14,7 @@ import traceback
 import re
 from hn2 import *
 
-SUPPORTED_SITES = re.compile('www.metrolyrics.com|www.azlyrics.com')
+SUPPORTED_SITES = re.compile('www.metrolyrics.com|www.azlyrics.com|lyrics')
 
 def parseout_metrolyrics(lyricslink):
   lyrics_html = urllib2.urlopen(lyricslink).read()
@@ -65,7 +65,7 @@ def search_google(query):
   ### Open page & generate soup
   ### the "start" variable will be used to iterate through 10 pages.
   print 'Searching through google for lyrics...'
-  for start in range(0,1):
+  for start in range(0,2):
     print query, start
     url = u''.join(['http://www.google.com/search?q=', query, '&start=', str(start*10)])
     page = opener.open(url)
@@ -76,6 +76,7 @@ def search_google(query):
     ### So for each cite tag on each page (10), print its contents (url)
     for cite in soup.findAll('cite'):
       link = cite.text
+      # links.append(link)
       if is_supported_site(link):
         # print 'added link', link
         links.append(link)
@@ -127,25 +128,38 @@ for name in song_name:
 
     # print 'lyrics list', lyricsList
 
+    lyrics = ''
     notChosen = True
 
-    while notChosen:
-      print '-----------------------------------------------------------------'
-      print "Found:", '\n', '\n'.join(list_lyrics(lyricsList))
-      print '-----------------------------------------------------------------'
+    if len(lyricsList) > 0:
+      while notChosen:
+        print '-----------------------------------------------------------------'
+        print "Found:", '\n', '\n'.join(list_lyrics(lyricsList))
+        print '-----------------------------------------------------------------'
 
-      print '\n'
+        print '\n'
 
-      choice = ''
-      while choice.strip() == '':
-        choice = raw_input('Pick one: ')
+        choice = ''
 
-      url, lyrics = lyricsList[int(choice)]
-      print lyrics
+        while choice.strip() == '':
+          choice = raw_input('Pick one (q to not pick lyrics): ')
 
-      prompt = raw_input("Choose lyrics (y/n)? ")
-      if prompt != "n":
-        notChosen = False
+        if choice != 'q':
+          print 'choice', choice
+          url, lyrics = lyricsList[int(choice)]
+
+          print lyrics
+
+          prompt = raw_input("Choose lyrics (y/n)? ")
+          if prompt == "y":
+            notChosen = False
+        else:
+          notChosen = False
+    else:
+      print '################# No lyrics found on metrolyrics.com or azlyrics.com #################'
+
+
+
 
 
     print 'picked lyrics', lyrics

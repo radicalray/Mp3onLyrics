@@ -14,6 +14,11 @@ import traceback
 import re
 from hn2 import *
 
+from os.path import dirname, join
+# calculated paths for django and the site
+# used as starting points for various other paths
+BASE_DIR = dirname(os.path.realpath(__file__))
+
 SUPPORTED_SITES = re.compile('www.metrolyrics.com|www.azlyrics.com|lyrics')
 
 def parseout_metrolyrics(lyricslink):
@@ -185,7 +190,7 @@ for name in song_name:
     print 'Artiest:', artist.strip()
     print('lyrics Added! ')
 
-    os.system('mv *.mp3 download/.')
+    os.system('mv *.mp3 ' + os.path.join(BASE_DIR, 'download') + '/.')
     print 'Moved all mp3 to download folder after tagging'
 
   except Exception,e:

@@ -88,113 +88,137 @@ def search_google(query):
 
     return links
 
-song_name= glob.glob("*.mp3")
 
-for name in song_name:
-  try:
+def shellquote(s):
+    return "'" + s.replace("'", "'\\''") + "'"
 
-    print 'tagging file', name
-    # name = u'' + name
-    string = name
-    string = unicode(string, errors='strict')
-    name = string.encode('utf-8')
+def tagit(execution_mode=False):
+  if execution_mode:
+    os.chdir(BASE_DIR)
+  song_name= glob.glob("*.mp3")
 
-    print('Test', name)
+  for name in song_name:
+    try:
+      print 'tagging file', name
+      # name = u'' + name
+      string = name
+      string = unicode(string, errors='strict')
+      name = string.encode('utf-8')
 
-
-    audiofile = eyed3.load((name))
-    print 'File loaded...'
-    name= name.replace('.mp3','')
-    print('Applying to '+name)
-    query3 = name + ' lyrics'
-    query2 = 'azlyrics ' + name
-    query1 = 'metrolyrics ' + name
+      print('Test', name)
 
 
-    links = search_google(query1) + search_google(query2) + search_google(query3)
+      audiofile = eyed3.load((name))
+      print 'File loaded...'
+      name= name.replace('.mp3','')
+      print('Applying to '+name)
+      query3 = name + ' lyrics'
+      query2 = 'azlyrics ' + name
+      query1 = 'metrolyrics ' + name
 
-    lyricsList = []
+
+      links = search_google(query1) + search_google(query2) + search_google(query3)
+
+      lyricsList = []
 
 
-    for link in links:
-      link = clean_url(link)
-      if re.findall('www.youtube.com', link):
-        continue
-      print 'parse lyrics', link
-      try:
-        if re.findall('www.metrolyrics.com', link):
-          lyricsList.append((link, parseout_metrolyrics(link)))
-        else:
-          lyricsList.append((link, parseout_arc90(link)))
-      except Exception,e:
-        # print (e)
-        # traceback.print_exc()
-        print ('This link sucked ', link)
+      for link in links:
+        link = clean_url(link)
+        if re.findall('www.youtube.com', link):
+          continue
+        print 'parse lyrics', link
+        try:
+          if re.findall('www.metrolyrics.com', link):
+            lyricsList.append((link, parseout_metrolyrics(link)))
+          else:
+            lyricsList.append((link, parseout_arc90(link)))
+        except Exception,e:
+          # print (e)
+          # traceback.print_exc()
+          print ('This link sucked ', link)
 
-    # print 'lyrics list', lyricsList
+      # print 'lyrics list', lyricsList
 
-    lyrics = ''
-    notChosen = True
+      lyrics = ''
+      notChosen = True
 
-    if len(lyricsList) > 0:
-      while notChosen:
-        print '-----------------------------------------------------------------'
-        print "Found:", '\n', '\n'.join(list_lyrics(lyricsList))
-        print '-----------------------------------------------------------------'
+      if len(lyricsList) > 0:
+        while notChosen:
+          print '-----------------------------------------------------------------'
+          print "Found:", '\n', '\n'.join(list_lyrics(lyricsList))
+          print '-----------------------------------------------------------------'
 
-        print '\n'
+          print '\n'
 
-        choice = ''
+          choice = ''
 
-        while choice.strip() == '':
-          choice = raw_input('Pick one (q to not pick lyrics): ')
+          while choice.strip() == '':
+            choice = raw_input('Pick one (q to not pick lyrics): ')
 
-        if choice != 'q':
-          print 'choice', choice
-          url, lyrics = lyricsList[int(choice)]
+          if choice != 'q':
+            print 'choice', choice
+            url, lyrics = lyricsList[int(choice)]
 
-          print lyrics
+            print lyrics
 
-          prompt = raw_input("Choose lyrics (y/n)? ")
-          if prompt == "y":
+            prompt = raw_input("Choose lyrics (y/n)? ")
+            if prompt == "y":
+              notChosen = False
+          else:
             notChosen = False
-        else:
-          notChosen = False
-    else:
-      print '################# No lyrics found on metrolyrics.com or azlyrics.com #################'
+      else:
+        print '################# No lyrics found on metrolyrics.com or azlyrics.com #################'
 
 
 
 
 
-    print 'picked lyrics', lyrics
+      print 'picked lyrics', lyrics
 
-    tag = audiofile.tag
+      if not audiofile.tag:
+        audiofile.initTag()
+      tag = audiofile.tag
 
-    name = str(name)
+      name = str(name)
 
-    if '-' in name:
-      artist, title = name.split('-')
-    else:
-      title = name
-      artist = ''
-      print 'Couldn\'t parse out artist name from filename automatically'
-    title = re.sub('\s\[(.*)\]', '', title)
-    tag.artist = u'' + artist
-    tag.title= u''+title
-    tag.lyrics.set(u''+lyrics )
-    tag.save()
-    print '-----------------------------------------------------------------'
+      if '-' in name:
+        artist, title = name.split('-')
+      else:
+        title = name
+        artist = ''
+        print 'Couldn\'t parse out artist name from filename automatically'
+      title = re.sub('\s\[(.*)\]', '', title)
+      title = title.strip()
+      artist = artist.strip()
+      lyrics = lyrics.strip()
+      tag.artist = u'' + artist
+      tag.title= u''+title
+      tag.lyrics.set(u''+lyrics )
+      tag.save()
+      print '-----------------------------------------------------------------'
 
-    print 'Title:', title.strip(), '\n'
-    print 'Artiest:', artist.strip()
-    print('lyrics Added! ')
+      print 'Title:', title, '\n'
+      print 'Artiest:', artist
+      print('lyrics Added! ')
 
-    os.system('mv *.mp3 ' + os.path.join(BASE_DIR, 'download') + '/.')
-    print 'Moved all mp3 to download folder after tagging'
+      os.system('mv *.mp3 ' + os.path.join(BASE_DIR, 'download') + '/.')
+      print 'Moved all mp3 to download folder after tagging'
 
-  except Exception,e:
-    print (e)
-    traceback.print_exc()
-    print ('An error occured for ', name)
+    except Exception,e:
+      print (e)
+      traceback.print_exc()
+      print ('An error occured for ', name)
 
+
+import sys, getopt
+
+def main(argv):
+  if len(argv) > 0 and argv[0] == '-x':
+    tagit(True)
+  else:
+    print 'Tag songs in current directory...'
+    # normal mode, parse everything in directory
+    tagit()
+
+if __name__ == "__main__":
+   main(sys.argv[1:])

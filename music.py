@@ -9,6 +9,7 @@ import re
 
 from bs4 import BeautifulSoup
 from urllib2 import urlparse
+import glob
 
 # Version compatiblity
 import sys
@@ -48,6 +49,10 @@ def is_url(string):
     link = urlparse.urlparse(string)
     return bool(link.scheme)
 
+
+def shellquote(s):
+    return "'" + s.replace("'", "'\\''") + "'"
+
 def download_from_url(url):
     print('Downloading', url)
 
@@ -64,8 +69,33 @@ def download_from_url(url):
     command = ' '.join(command_tokens)
 
     print('Downloading...')
+    os.chdir(BASE_DIR)
     os.system(command)
-    os.system('python ' + join(BASE_DIR, 'auto_lyrics_tagger.py'))
+
+    song_name= glob.glob("*.mp3")
+    for name in song_name:
+        try:
+
+            # trim silences at the beginning and end of the song
+            command_tokens = [
+                'sox',
+                 shellquote(name),
+                 'temp.mp3',
+                 'silence 1 0.1 1% reverse silence 1 0.1 1% reverse'
+            ]
+            command = ' '.join(command_tokens)
+
+            print ('Trimming any silences...')
+            os.system(command)
+            print ('Done trimming, renaming...')
+            os.system('mv temp.mp3 ' + shellquote(name))
+
+        except Exception,e:
+            print (e)
+            traceback.print_exc()
+            print ('An error occured for ', name)
+
+    os.system('python ' + join(BASE_DIR, 'auto_lyrics_tagger.py -x'))
 
 def main():
 

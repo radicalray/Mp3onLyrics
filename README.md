@@ -3,6 +3,8 @@ Download mp3 without knowing the name of the song - just by typing the lyrics or
 
 This program will also automatically search for the **Lyrics** of the song online then download the lyrics for the song and add then embed *Lyrics* to the *mp3* file via *eyed3* Tagger. All songs lyrics fetched in one go!
 
+Also, will automatically trim silences in the beginning and end of the song
+
 
 Just download the scipt and run my typing 
 
@@ -31,5 +33,6 @@ Happy Downloading!
 
 * `$ sudo pip install eyed3`
 * libav ---- `brew install libav` 
+* sox ----- `brew install sox`
 * `$ sudo pip install BeautifulSoup4`
 

@@ -8,8 +8,9 @@ Also, will automatically trim silences in the beginning and end of the song
 
 Just download the scipt and run my typing 
 
-
+```
 python music.py 
+```
 
 ## Auto Tagger Module
 Also includes an [auto-tagger](https://github.com/yask123/Auto-MP3-Lyrics-Tagger)
@@ -31,8 +32,10 @@ Happy Downloading!
 
 ### Dependencies:
 
+* `sudo pip install --upgrade youtube_dl`
 * `$ sudo pip install eyed3`
 * libav ---- `brew install libav` 
-* sox ----- `brew install sox`
+* sox ----- `brew install sox` or `sudo apt-get install sox`
 * `$ sudo pip install BeautifulSoup4`
+* `sudo apt-get install -y libav-tools`
 
